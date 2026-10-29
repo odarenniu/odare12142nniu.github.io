@@ -1,0 +1,33 @@
+import re
+
+def bb_to_markdown(text: str) -> str:
+    """
+    Конвертирует простые BB-теги в Markdown.
+    Поддерживает: [b], [/b], [i], [/i], [code], [/code], [url=...], [/url]
+    """
+    # Жирный: [b]текст[/b] → **текст**
+    text = re.sub(r'\[b\](.*?)\[/b\]', r'**\1**', text, flags=re.DOTALL)
+    
+    # Курсив: [i]текст[/i] → *текст*
+    text = re.sub(r'\[i\](.*?)\[/i\]', r'*\1*', text, flags=re.DOTALL)
+    
+    # Блок кода: [code]текст[/code] → ```текст```
+    text = re.sub(r'\[code\](.*?)\[/code\]', r'```\n\1\n```', text, flags=re.DOTALL)
+    
+    # Ссылка: [url=https://example.com]текст[/url] → [текст](https://example.com)
+    def replace_url(match):
+        url = match.group(1)
+        label = match.group(2) or url
+        return f'[{label}]({url})'
+    
+    text = re.sub(r'\[url=(https?://[^\]]+)\](.*?)\[/url\]', replace_url, text, flags=re.DOTALL)
+    
+    return text
+
+if __name__ == "__main__":
+    sample = (
+        "[b]Заголовок[/b]\n\n"
+        "Это [i]курсив[/i], а это [code]x = 1 + 2[/code].\n"
+        "Ссылка: [url=https://github.com]GitHub[/url]"
+    )
+    print(bb_to_markdown(sample))
